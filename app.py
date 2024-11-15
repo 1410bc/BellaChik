@@ -8,6 +8,10 @@ app = Flask(__name__)
 # Configurar la clave de API de OpenAI desde una variable de entorno
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+@app.route('/', methods=['GET'])
+def home():
+    return 'Bienvenido a mi asistente basado en OpenAI.'
+
 @app.route('/assistant', methods=['POST'])
 def assistant():
     # Obtener el prompt del cuerpo de la petición

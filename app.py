@@ -1,5 +1,6 @@
 # app.py
 from flask import Flask, request, jsonify
+import requests
 import openai
 import os
 
@@ -12,7 +13,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def home():
     return 'Bienvenido a mi asistente basado en OpenAI.'
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/create_event', methods=['POST'])
 def send_to_webhook():
     try:
         data = request.get_json()
@@ -25,6 +26,32 @@ def send_to_webhook():
             "status": response.status_code,
             "response": response.text
         })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/ask-assistant', methods=['POST'])
+def ask_assistant():
+    # Leer la entrada del usuario desde el cuerpo de la solicitud
+    user_input = request.get_json().get("message", "")
+    
+    if not user_input:
+        return jsonify({"error": "No input provided"}), 400
+
+    try:
+        # Llamar al modelo de OpenAI
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # O usa el modelo que prefieras
+            messages=[
+                {"role": "system", "content": "Eres un asistente útil."},
+                {"role": "user", "content": user_input}
+            ]
+        )
+        
+        # Obtener la respuesta generada
+        assistant_reply = response['choices'][0]['message']['content']
+        
+        return jsonify({"response": assistant_reply})
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

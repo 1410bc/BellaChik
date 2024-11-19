@@ -14,21 +14,20 @@ def home():
 
 @app.route('/webhook', methods=['POST'])
 def send_to_webhook():
-    # URL del webhook de Make
-    make_webhook_url = "https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8"
-    
-    # Datos enviados desde el cliente
-    data = request.get_json()
-    
-    # Opcional: puedes validar o procesar los datos aquí.
-    
-    # Enviar datos al webhook
-    response = requests.post(make_webhook_url, json=data)
-    
-    return jsonify({
-        "status": response.status_code,
-        "response": response.text
-    })
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON"}), 400
+        # Enviar los datos al webhook de Make
+        make_webhook_url = "https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8l"
+        response = requests.post(make_webhook_url, json=data)
+        return jsonify({
+            "status": response.status_code,
+            "response": response.text
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

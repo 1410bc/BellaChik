@@ -68,7 +68,7 @@ def chat_assistant():
 
         return jsonify({'status': 'success', 'assistant_reply': assistant_reply}), 200
 
-    except openai.OpenAIError as e:  # Usar openai.OpenAIError directamente
+    except openai.error.OpenAIError as e:  # Usar openai.OpenAIError directamente
         return jsonify({'status': 'error', 'message': f'Error al comunicarse con OpenAI: {str(e)}'}), 500
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Error inesperado: {str(e)}'}), 500

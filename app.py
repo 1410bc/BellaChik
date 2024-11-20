@@ -13,10 +13,10 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def home():
     return 'Bienvenido a mi asistente basado en OpenAI.'
 
-@app.route('/crear_evento', methods=['POST'])
+@app.route('/create_event', methods=['POST'])
 def crear_evento():
     # Datos que quieres enviar al webhook
-    
+
     webhook_url = 'https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8l'  # Reemplaza con tu URL real
 
     try:

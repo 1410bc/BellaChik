@@ -16,6 +16,12 @@ def home():
 @app.route('/create_event', methods=['POST'])
 def crear_evento():
     # Datos que quieres enviar al webhook
+    
+    data = {
+        'nombre': 'Maria',
+        'correo': 'maria@example.com',
+        'mensaje': 'Evento creado desde el servidor!'
+    }
 
     webhook_url = 'https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8l'  # Reemplaza con tu URL real
 

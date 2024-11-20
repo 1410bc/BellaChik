@@ -58,7 +58,7 @@ def chat_assistant():
             return jsonify({'status': 'error', 'message': 'El ID del asistente no está configurado.'}), 500
 
         # Llamar a la API de OpenAI
-        response = openai.chatCompletion.create(
+        response = openai.chat.completions.create(
             model=assistant_id,
             messages=[
                 {'role': 'user', 'content': user_message}

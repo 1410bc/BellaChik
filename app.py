@@ -17,11 +17,11 @@ def home():
 def crear_evento():
     # Datos que quieres enviar al webhook
      
-    data = {
-        'nombre': 'Maria',
-        'correo': 'maria@example.com',
-        'mensaje': 'Evento creado desde el servidor!'
-    }
+    data = request.get_json()
+
+    if data is None:
+        return jsonify({'status': 'error', 'message': 'No se proporcionó un JSON válido en la solicitud.'}), 400
+
 
     webhook_url = 'https://hook.us2.make.com/b7voaa155lq42gfzs5v8tooi79xiyb5o'  # Reemplaza con tu URL real
 

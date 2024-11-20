@@ -43,35 +43,34 @@ def crear_evento():
     
 @app.route('/chat_assistant', methods=['POST'])
 def chat_assistant():
-    # Obtener el mensaje del usuario desde la solicitud
-    data = request.get_json()
-
-    if data is None or 'message' not in data:
-        return jsonify({'status': 'error', 'message': 'Se requiere un campo "message" en el JSON.'}), 400
-
-    user_message = data['message']
-    assistant_id = os.environ.get('ASSISTANT_ID')
-
-    if not assistant_id:
-        return jsonify({'status': 'error', 'message': 'El ID del asistente no está configurado.'}), 500
-
     try:
-        # Llamar a la API de OpenAI para obtener la respuesta del asistente
+        # Obtener el mensaje del usuario desde la solicitud
+        data = request.get_json()
+
+        if data is None or 'message' not in data:
+            return jsonify({'status': 'error', 'message': 'Se requiere un campo "message" en el JSON.'}), 400
+
+        user_message = data['message']
+        assistant_id = os.environ.get('ASSISTANT_ID')
+
+        if not assistant_id:
+            return jsonify({'status': 'error', 'message': 'El ID del asistente no está configurado.'}), 500
+
+        # Llamar a la API de OpenAI
         response = openai.ChatCompletion.create(
-            model=assistant_id,  # Utiliza el ID de tu asistente personalizado
+            model=assistant_id,
             messages=[
                 {'role': 'user', 'content': user_message}
             ]
         )
 
         assistant_reply = response['choices'][0]['message']['content']
-
         return jsonify({'status': 'success', 'assistant_reply': assistant_reply}), 200
 
-    except openai.error.OpenAIError as e:  # Usar openai.OpenAIError directamente
-        return jsonify({'status': 'error', 'message': f'Error al comunicarse con OpenAI: {str(e)}'}), 500
     except Exception as e:
+        # Manejar todos los errores inesperados aquí
         return jsonify({'status': 'error', 'message': f'Error inesperado: {str(e)}'}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

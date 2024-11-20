@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 import requests
 from openai import OpenAI
-#from openai.error import OpenAIError
+from openai.error import OpenAIError
 import os
 
 app = Flask(__name__)
@@ -69,8 +69,9 @@ def chat_assistant():
 
         return jsonify({'status': 'success', 'assistant_reply': assistant_reply}), 200
 
-    except openai.error.OpenAIError as e:
+    except OpenAIError as e:
         return jsonify({'status': 'error', 'message': f'Error al comunicarse con OpenAI: {str(e)}'}), 500
+
 
 
 

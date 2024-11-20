@@ -13,33 +13,24 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def home():
     return 'Bienvenido a mi asistente basado en OpenAI.'
 
-@app.route('/create_event', methods=['POST'])
-def send_to_webhook():
+@app.route('/crear_evento', methods=['POST'])
+def crear_evento():
+    # Datos que quieres enviar al webhook
+    
+    webhook_url = 'https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8l'  # Reemplaza con tu URL real
+
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Invalid or missing JSON"}), 400
-        
-        # URL del webhook de Make
-        make_webhook_url = "https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8l"
-        
-        # Registra los datos enviados para verificar
-        print(f"Datos enviados al webhook: {data}")
-        
-        # Enviar los datos al webhook
-        response = requests.post(make_webhook_url, json=data)
-        
-        # Registra la respuesta para depuración
-        print(f"Respuesta del webhook: {response.status_code}, {response.text}")
-        
-        return jsonify({
-            "status": response.status_code,
-            "response": response.text
-        })
-    except Exception as e:
-        # Registrar el error en logs para rastreo
-        print(f"Error al enviar al webhook: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        response = requests.post(webhook_url, json=data)
+        response.raise_for_status()
+        return jsonify({'status': 'success', 'message': 'Webhook llamado exitosamente.'}), 200
+    except requests.exceptions.HTTPError as errh:
+        return jsonify({'status': 'error', 'message': f'Error HTTP: {errh}'}), 500
+    except requests.exceptions.ConnectionError as errc:
+        return jsonify({'status': 'error', 'message': f'Error de conexión: {errc}'}), 500
+    except requests.exceptions.Timeout as errt:
+        return jsonify({'status': 'error', 'message': f'Tiempo de espera agotado: {errt}'}), 500
+    except requests.exceptions.RequestException as err:
+        return jsonify({'status': 'error', 'message': f'Error inesperado: {err}'}), 500
 
     
 @app.route('/ask-assistant', methods=['POST'])

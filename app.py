@@ -45,6 +45,8 @@ def crear_evento():
 @app.route('/chat_assistant', methods=['POST'])
 def chat_assistant():
     try:
+        from pprint import pprint  # Asegúrate de importar pprint
+
         # Obtener el mensaje del usuario desde la solicitud
         data = request.get_json()
 
@@ -52,24 +54,49 @@ def chat_assistant():
             return jsonify({'status': 'error', 'message': 'Se requiere un campo "message" en el JSON.'}), 400
 
         user_message = data['message']
-        assistant_id = os.environ.get('ASSISTANT_ID')
+        assistant_id = os.getenv("ASSISTANT_ID")
 
-        if not assistant_id:
-            return jsonify({'status': 'error', 'message': 'El ID del asistente no está configurado.'}), 500
+        # Crear un hilo de conversación
+        thread = openai.beta.threads.create()
 
-        # Llamar a la API de OpenAI
-        response = openai.chat.completions.create(
-            model=assistant_id,
-            messages=[
-                {'role': 'user', 'content': user_message}
-            ]
+        # Agregar el mensaje del usuario al hilo
+        openai.beta.threads.messages.create(
+            thread_id=thread.id,
+            role="user",
+            content=user_message,
         )
 
-        assistant_reply = response['choices'][0]['message']['content']
-        return jsonify({'status': 'success', 'assistant_reply': assistant_reply}), 200
+        # Ejecutar el asistente
+        run = openai.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=assistant_id,
+        )
+
+        # Verificar el estado de la ejecución
+        while run.status not in ("completed", "failed", "requires_action"):
+            run = openai.beta.threads.runs.retrieve(
+                thread_id=thread.id,
+                run_id=run.id,
+            )
+
+        # Obtener los mensajes de la conversación
+        messages = openai.beta.threads.messages.list(
+            thread_id=thread.id,
+        )
+
+        # Construir la respuesta
+        responses = []
+        for each in messages:
+            role = each.role
+            content = each.content[0].text.value
+            responses.append({'role': role, 'content': content})
+            pprint(f"{role}: {content}")  # Imprimir en consola para depuración
+
+        # Retornar los mensajes como respuesta
+        return jsonify({'status': 'success', 'messages': responses}), 200
 
     except Exception as e:
-        # Manejar todos los errores inesperados aquí
+        # Manejar errores inesperados
         return jsonify({'status': 'error', 'message': f'Error inesperado: {str(e)}'}), 500
 
 

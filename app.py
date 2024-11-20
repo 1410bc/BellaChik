@@ -19,15 +19,28 @@ def send_to_webhook():
         data = request.get_json()
         if not data:
             return jsonify({"error": "Invalid or missing JSON"}), 400
-        # Enviar los datos al webhook de Make
+        
+        # URL del webhook de Make
         make_webhook_url = "https://hook.us2.make.com/pqv8e8e6gebzt8kmwytyjr178hwb9qp8l"
+        
+        # Registra los datos enviados para verificar
+        print(f"Datos enviados al webhook: {data}")
+        
+        # Enviar los datos al webhook
         response = requests.post(make_webhook_url, json=data)
+        
+        # Registra la respuesta para depuración
+        print(f"Respuesta del webhook: {response.status_code}, {response.text}")
+        
         return jsonify({
             "status": response.status_code,
             "response": response.text
         })
     except Exception as e:
+        # Registrar el error en logs para rastreo
+        print(f"Error al enviar al webhook: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
     
 @app.route('/ask-assistant', methods=['POST'])
 def ask_assistant():

@@ -1,10 +1,13 @@
 # app.py
 from flask import Flask, request, jsonify
 import requests
-import openai
+from openai import OpenAI
+#from openai.error import OpenAIError
 import os
 
 app = Flask(__name__)
+
+openai = OpenAI
 
 # Configurar la clave de API de OpenAI desde una variable de entorno
 openai.api_key = os.getenv("OPENAI_API_KEY")

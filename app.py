@@ -39,31 +39,36 @@ def crear_evento():
         return jsonify({'status': 'error', 'message': f'Error inesperado: {err}'}), 500
 
     
-@app.route('/ask-assistant', methods=['POST'])
-def ask_assistant():
-    # Leer la entrada del usuario desde el cuerpo de la solicitud
-    user_input = request.get_json().get("message", "")
-    
-    if not user_input:
-        return jsonify({"error": "No input provided"}), 400
+@app.route('/chat_assistant', methods=['POST'])
+def chat_assistant():
+    # Obtener el mensaje del usuario desde la solicitud
+    data = request.get_json()
+
+    if data is None or 'message' not in data:
+        return jsonify({'status': 'error', 'message': 'Se requiere un campo "message" en el JSON.'}), 400
+
+    user_message = data['message']
+    assistant_id = os.environ.get('ASSISTANT_ID')
+
+    if not assistant_id:
+        return jsonify({'status': 'error', 'message': 'El ID del asistente no está configurado.'}), 500
 
     try:
-        # Llamar al modelo de OpenAI
+        # Llamar a la API de OpenAI para obtener la respuesta del asistente
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # O usa el modelo que prefieras
+            model=assistant_id,  # Utiliza el ID de tu asistente personalizado
             messages=[
-                {"role": "system", "content": "Eres un asistente útil."},
-                {"role": "user", "content": user_input}
+                {'role': 'user', 'content': user_message}
             ]
         )
-        
-        # Obtener la respuesta generada
+
         assistant_reply = response['choices'][0]['message']['content']
-        
-        return jsonify({"response": assistant_reply})
-    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
+        return jsonify({'status': 'success', 'assistant_reply': assistant_reply}), 200
+
+    except openai.error.OpenAIError as e:
+        return jsonify({'status': 'error', 'message': f'Error al comunicarse con OpenAI: {str(e)}'}), 500
+
 
 
 if __name__ == '__main__':
